@@ -6,3 +6,10 @@ spring:
       date-format: yyyy-MM-dd HH:mm:ss
   application:
     name: acmi-foundation
+  redis:
+    database: 0
+    host: 192.168.136.129
+    # Redis服务器连接端口
+    port: 6379
+    #    password:
+    password: myredis
