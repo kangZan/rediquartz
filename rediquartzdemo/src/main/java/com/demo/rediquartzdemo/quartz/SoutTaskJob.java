@@ -2,11 +2,9 @@ package com.demo.rediquartzdemo.quartz;
 
 import indi.kang.rediquartz.quartz.job.support.redis.RedisMultipleNodesUniJob;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
 
 /**
  * @program: rediquartz
@@ -16,14 +14,15 @@ import org.springframework.data.redis.core.RedisTemplate;
  * 2.
  **/
 @Slf4j
-public class SoutTaskJob extends RedisMultipleNodesUniJob    {
+@Service
+public class SoutTaskJob extends RedisMultipleNodesUniJob {
 
     @Autowired
     private RedisTemplate redisTemplate;
 
     @Override
     public void startTask(String jobName, String group) {
-        System.out.println("job jobName:"+jobName);
-        System.out.println("job group:"+group);
+        System.out.println("job jobName:" + jobName);
+        System.out.println("job group:" + group);
     }
 }

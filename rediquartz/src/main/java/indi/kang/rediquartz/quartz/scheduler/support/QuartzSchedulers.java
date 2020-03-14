@@ -43,7 +43,7 @@ public class QuartzSchedulers implements Schedulers { // 任务调度
     public void startJob(String jobName, String groupName, Date date, Class jobClass) throws SchedulerException {
         if (System.currentTimeMillis() >= date.getTime()) {
             //当前时间大于定时时间则立刻执行
-            //获取任务类
+            //获取指定任务类
             RedisMultipleNodesUniJob multipleNodesUniJobByRedis = (RedisMultipleNodesUniJob) SpringContextUtils.getBean(jobClass);
             //手动调用执行任务
             multipleNodesUniJobByRedis.runTask(jobName, groupName);

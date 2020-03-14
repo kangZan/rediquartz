@@ -13,7 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>rediquartz</name>
     <description>Demo project for Spring Boot</description>
-    <!--发布到本地仓库-->
+    <!-- deploy到本地仓库地址-->
     <distributionManagement>
         <repository>
             <id>localRepository</id>

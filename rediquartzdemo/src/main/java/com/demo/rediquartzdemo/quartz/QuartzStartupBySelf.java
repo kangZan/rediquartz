@@ -67,7 +67,7 @@ public class QuartzStartupBySelf implements ApplicationRunner {
         for (int i = 0; i < 10; i++) {
             Map job = new HashMap();
             //执行时间
-            job.put("runDate", localDateTimeToDate(LocalDateTime.now().plusMinutes(3)));
+            job.put("runDate", localDateTimeToDate(LocalDateTime.now().plusMinutes(3+i)));
             //定时任务的key
             job.put("jobName", "jobName" + i);
             //定时任务的group
