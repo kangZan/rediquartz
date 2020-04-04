@@ -3,7 +3,9 @@ package com.demo.rediquartzdemo.quartz;
 import indi.kang.rediquartz.quartz.job.support.redis.RedisMultipleNodesUniJob;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,8 +19,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class SoutTaskJob extends RedisMultipleNodesUniJob {
 
-    @Autowired
-    private RedisTemplate redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired(required = false)
+    public void setRedisTemplate(StringRedisTemplate stringRedisTemplate) {
+        RedisSerializer stringSerializer = new StringRedisSerializer();
+        stringRedisTemplate.setKeySerializer(stringSerializer);
+        stringRedisTemplate.setValueSerializer(stringSerializer);
+        stringRedisTemplate.setHashKeySerializer(stringSerializer);
+        stringRedisTemplate.setHashValueSerializer(stringSerializer);
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
 
     @Override
     public void startTask(String jobName, String group) {

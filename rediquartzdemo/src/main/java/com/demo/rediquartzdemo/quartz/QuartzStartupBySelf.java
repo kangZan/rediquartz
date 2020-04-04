@@ -1,5 +1,6 @@
 package com.demo.rediquartzdemo.quartz;
 
+import com.demo.rediquartzdemo.model.JobModel;
 import indi.kang.rediquartz.quartz.scheduler.Schedulers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,17 +44,24 @@ public class QuartzStartupBySelf implements ApplicationRunner {
      */
     private void runTask() {
         //找出需要执行的定时任务
-        List<Map> jobDOList = getJobDOList();
-        jobDOList.forEach(job -> {
-            //定时任务的key
-            //定时任务的group
-            try {
-                quartzSchedulers.startJob((String) job.get("jobName"), (String) job.get("group"), (Date) job.get("runDate"), SoutTaskJob.class);
-            } catch (Exception e) {
-                log.error("=====================startJob :{}", e);
-                log.error("=====================param :{}", job);
+        List<JobModel> jobDOList = getJobDOList();
+        new Thread(() -> {
+            for (int i = 0; i < 100; i++) {
+                final int j = i;
+                jobDOList.forEach(job -> {
+                    //定时任务的key
+                    //定时任务的group
+                    try {
+                        job.setGroup("group" + j);
+                        quartzSchedulers.startJob(job.getJobName(), job.getGroup(), job.getRunDate(), SoutTaskJob.class);
+                    } catch (Exception e) {
+                        log.error("=====================startJob :{}", e);
+                        log.error("=====================param :{}", job);
+                    }
+                });
             }
-        });
+        }).start();
+
 
     }
 
@@ -62,28 +70,26 @@ public class QuartzStartupBySelf implements ApplicationRunner {
      *
      * @return
      */
-    private List<Map> getJobDOList() {
-        List<Map> jobDOList = new LinkedList<Map>();
+    private List<JobModel> getJobDOList() {
+        List<JobModel> jobDOList = new LinkedList<JobModel>();
         for (int i = 0; i < 10; i++) {
-            Map job = new HashMap();
+            JobModel job = new JobModel();
             //执行时间
-            job.put("runDate", localDateTimeToDate(LocalDateTime.now().plusMinutes(3+i)));
+            job.setRunDate(localDateTimeToDate(LocalDateTime.now().plusMinutes(3 + i)));
             //定时任务的key
-            job.put("jobName", "jobName" + i);
-            //定时任务的group
-            job.put("group", "group" + i);
+            job.setJobName("jobName" + i);
             jobDOList.add(job);
         }
         /*
          *构建一个立即执行的job
          * **/
-        Map runNowjob = new HashMap();
+        JobModel runNowjob = new JobModel();
         //执行时间
-        runNowjob.put("runDate", new Date());
+        runNowjob.setRunDate(new Date());
         //定时任务的key
-        runNowjob.put("jobName", "nowJobName");
+        runNowjob.setJobName("nowJobName");
         //定时任务的group
-        runNowjob.put("group", "nowGroup");
+        runNowjob.setGroup("nowGroup");
         jobDOList.add(runNowjob);
         return jobDOList;
     }
