@@ -46,11 +46,9 @@ public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJ
     public void runTask(String jobName, String group) {
         log.info("=============任务开始");
         log.info("jobName:" + jobName);
-        //放入执行标记到redis中的list并获取放入下标
-        boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(jobName, jobName);
+        //如果成功赋值则15分钟后（防止服务器时间差）清除redis执行标记，释放锁
+        boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(jobName, jobName, 15L, TimeUnit.MINUTES);
         if (flag) {
-            //如果成功赋值则15分钟后（防止服务器时间差）清除redis执行标记，释放锁
-            stringRedisTemplate.expire(jobName, 15L, TimeUnit.MINUTES);
             //执行实际任务
             try {
                 startTask(jobName, group);
