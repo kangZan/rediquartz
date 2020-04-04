@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @program: rediquartz
@@ -38,8 +40,8 @@ public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJ
      * 执行任务前从redis加锁
      * 手动直接执行job的方法
      *
-     * @param jobName   定时任务的jobname
-     * @param group 定时任务的group
+     * @param jobName 定时任务的jobname
+     * @param group   定时任务的group
      */
     public void runTask(String jobName, String group) {
         log.debug("=============任务开始");
@@ -55,8 +57,8 @@ public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJ
                 log.error("MultipleNodesUniJobByRedis runTask key:{}", jobName);
                 log.error("MultipleNodesUniJobByRedis runTask excption:{}", e);
             }
-            //执行完毕清除redis执行标记
-            redisTemplate.delete(jobName);
+            //执行完毕15分钟后清除redis执行标记（防止服务器时间差）
+            redisTemplate.expire(jobName, 15L, TimeUnit.MINUTES);
         } else {
             //当下标不为1证明是已有执行任务
             log.info(jobName + "第{}次重复执行", flag);
@@ -69,8 +71,8 @@ public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJ
      * 实际任务执行
      * 实现需要实际执行任务job重写该方法
      *
-     * @param jobName   定时任务的jobname
-     * @param group 定时任务的group
+     * @param jobName 定时任务的jobname
+     * @param group   定时任务的group
      */
     public abstract void startTask(String jobName, String group);
 }
