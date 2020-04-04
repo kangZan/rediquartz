@@ -75,7 +75,7 @@ public class QuartzStartupBySelf implements ApplicationRunner {
         for (int i = 0; i < 10; i++) {
             JobModel job = new JobModel();
             //执行时间
-            job.setRunDate(localDateTimeToDate(LocalDateTime.now().plusMinutes(3 + i)));
+            job.setRunDate(localDateTimeToDate(LocalDateTime.now().plusMinutes(1 + i)));
             //定时任务的key
             job.setJobName("jobName" + i);
             jobDOList.add(job);

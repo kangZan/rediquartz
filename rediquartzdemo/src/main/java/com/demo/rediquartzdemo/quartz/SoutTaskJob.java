@@ -8,6 +8,8 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @program: rediquartz
  * @Description: 定时输出任务job
@@ -31,9 +33,16 @@ public class SoutTaskJob extends RedisMultipleNodesUniJob {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
+    public static volatile ConcurrentHashMap<String, String> map = new ConcurrentHashMap<>();
+
     @Override
-    public void startTask(String jobName, String group) {
-        System.out.println("job jobName:" + jobName);
-        System.out.println("job group:" + group);
+    public void startTask(String jobName, String group) throws Exception {
+        if (map.containsKey(jobName)) {
+            log.error("重复执行错误！！！！！！！！！！");
+            throw new Exception("重复执行错误！！！！！！！！！！");
+        }
+        map.put(jobName, jobName);
+        log.info("job jobName:" + jobName);
+        log.info("job group:" + group);
     }
 }
