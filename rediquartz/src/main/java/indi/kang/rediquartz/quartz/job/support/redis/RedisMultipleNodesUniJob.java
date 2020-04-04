@@ -44,26 +44,26 @@ public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJ
      * @param group   定时任务的group
      */
     public void runTask(String jobName, String group) {
-        log.debug("=============任务开始");
-        log.debug("jobName:" + jobName);
+        log.info("=============任务开始");
+        log.info("jobName:" + jobName);
         //放入执行标记到redis中的list并获取放入下标
-        long flag = stringRedisTemplate.opsForList().leftPush(jobName, jobName);
-        //当下标为1证明是第一个放入的，可以执行任务
-        if (flag == 1) {
+        boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(jobName, jobName);
+        if (flag) {
+            //如果成功赋值则15分钟后（防止服务器时间差）清除redis执行标记，释放锁
+            stringRedisTemplate.expire(jobName, 15L, TimeUnit.MINUTES);
             //执行实际任务
             try {
                 startTask(jobName, group);
             } catch (Exception e) {
                 log.error("MultipleNodesUniJobByRedis runTask key:{}", jobName);
                 log.error("MultipleNodesUniJobByRedis runTask excption:{}", e);
+                //业务发生异常立即释放锁
+                stringRedisTemplate.delete(jobName);
             }
-            //执行完毕15分钟后清除redis执行标记（防止服务器时间差）
-            stringRedisTemplate.expire(jobName, 15L, TimeUnit.MINUTES);
         } else {
-            //当下标不为1证明是已有执行任务
-            log.info(jobName + "第{}次重复执行", flag);
+            log.info(jobName + "已执行过，放弃执行");
         }
-        log.debug("=============任务结束");
+        log.info("=============任务结束");
     }
 
 
@@ -74,5 +74,5 @@ public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJ
      * @param jobName 定时任务的jobname
      * @param group   定时任务的group
      */
-    public abstract void startTask(String jobName, String group);
+    public abstract void startTask(String jobName, String group) throws Exception;
 }
