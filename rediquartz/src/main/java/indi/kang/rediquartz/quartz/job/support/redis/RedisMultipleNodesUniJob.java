@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJob {
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
 
     /**
@@ -47,7 +47,7 @@ public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJ
         log.debug("=============任务开始");
         log.debug("jobName:" + jobName);
         //放入执行标记到redis中的list并获取放入下标
-        long flag = redisTemplate.opsForList().leftPush(jobName, jobName);
+        long flag = stringRedisTemplate.opsForList().leftPush(jobName, jobName);
         //当下标为1证明是第一个放入的，可以执行任务
         if (flag == 1) {
             //执行实际任务
@@ -58,7 +58,7 @@ public abstract class RedisMultipleNodesUniJob implements Job, MultipleNodesUniJ
                 log.error("MultipleNodesUniJobByRedis runTask excption:{}", e);
             }
             //执行完毕15分钟后清除redis执行标记（防止服务器时间差）
-            redisTemplate.expire(jobName, 15L, TimeUnit.MINUTES);
+            stringRedisTemplate.expire(jobName, 15L, TimeUnit.MINUTES);
         } else {
             //当下标不为1证明是已有执行任务
             log.info(jobName + "第{}次重复执行", flag);

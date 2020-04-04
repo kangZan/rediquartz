@@ -28,9 +28,10 @@ public class QuartzSchedulers implements Schedulers { // 任务调度
     private Scheduler scheduler;
 
 
-    private void befor(String jobName, Class jobClass, Date date) {
+    private void befor(String jobName, String groupName, Class jobClass, Date date) {
         log.info("=====================addQuartz jobClass: {}", jobClass);
         log.info("=====================jobName: {}", jobName);
+        log.info("=====================groupName: {}", groupName);
         log.info("=====================date: {}  --->  '{}'", date, convertCron(date));
     }
 
@@ -50,7 +51,7 @@ public class QuartzSchedulers implements Schedulers { // 任务调度
             //当前时间大于定时时间则三分钟后执行
 //            date = getTimeByMinute(3);
         } else {
-            befor(jobName, jobClass, date);
+            befor(jobName, groupName, jobClass, date);
             addJob(scheduler, jobName, groupName, date, jobClass);
             scheduler.start();
         }
@@ -124,6 +125,7 @@ public class QuartzSchedulers implements Schedulers { // 任务调度
                 Map jobInfo = new HashMap<>();
                 //jobname
                 jobInfo.put("job", jobKey.getName());
+                jobInfo.put("group", jobKey.getGroup());
                 //定时器信息
                 List cronTriggers = scheduler.getTriggersOfJob(jobKey);
                 cronTriggers.forEach((cronTrigger) -> {
