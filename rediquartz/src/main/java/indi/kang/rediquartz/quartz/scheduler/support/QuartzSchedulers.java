@@ -1,6 +1,6 @@
 package indi.kang.rediquartz.quartz.scheduler.support;
 
-import indi.kang.rediquartz.quartz.job.support.redis.RedisMultipleNodesUniJob;
+import indi.kang.rediquartz.quartz.job.MultipleNodesUniJob;
 import indi.kang.rediquartz.quartz.scheduler.Schedulers;
 import indi.kang.rediquartz.quartz.utils.SpringContextUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class QuartzSchedulers implements Schedulers { // 任务调度
         if (System.currentTimeMillis() >= date.getTime()) {
             //当前时间大于定时时间则立刻执行
             //获取指定任务类
-            RedisMultipleNodesUniJob multipleNodesUniJobByRedis = (RedisMultipleNodesUniJob) SpringContextUtils.getBean(jobClass);
+            MultipleNodesUniJob multipleNodesUniJobByRedis = (MultipleNodesUniJob) SpringContextUtils.getBean(jobClass);
             //手动调用执行任务
             multipleNodesUniJobByRedis.runTask(jobName, groupName);
             //当前时间大于定时时间则三分钟后执行

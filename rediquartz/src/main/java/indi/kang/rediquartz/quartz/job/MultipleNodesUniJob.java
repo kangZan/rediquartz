@@ -9,5 +9,5 @@ package indi.kang.rediquartz.quartz.job;
  * 2.
  **/
 public interface MultipleNodesUniJob {
-
+    void runTask(String jobName, String group);
 }
